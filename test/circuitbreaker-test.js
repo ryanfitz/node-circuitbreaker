@@ -1,12 +1,30 @@
 'use strict';
 
+var CircuitBreaker = require('../index');
+
 require('chai').should();
 
-describe('Array', function(){
-  describe('#indexOf()', function(){
-    it('should return -1 when the value is not present', function(){
-      [1,2,3].indexOf(5).should.equal(-1);
-      [1,2,3].indexOf(0).should.equal(-1);
+describe('Circuit Breaker', function(){
+  var breaker;
+
+  beforeEach(function () {
+
+    var func = function (name, callback) {
+      return callback(null, 'hello ' + name);
+    };
+
+    breaker = CircuitBreaker(func, {timeout: 10, resetTimeout: 10});
+  });
+
+  describe('stuff', function() {
+
+    it('should work', function(done){
+      breaker('bob').then(function (msg) {
+        console.log("message is", msg);
+      }).fail(function(err) {
+        console.log("error is", err);
+      }).done(function() {return done();});
+
     });
   });
 });
