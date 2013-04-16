@@ -35,12 +35,27 @@ module.exports = function(grunt) {
         spawn: true
       },
     },
+
+    simplemocha: {
+      options: {
+        globals: ['should'],
+        timeout: 3000,
+        ignoreLeaks: false,
+        //grep: '*-test',
+        ui: 'bdd',
+        reporter: 'list'
+      },
+
+      all: { src: ['<%= jshint.test.src %>'] }
+    }
   });
 
-  // These plugins provide necessary tasks.
+    // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-regarde');
+  grunt.loadNpmTasks('grunt-simple-mocha');
 
-  // Default task.
-  grunt.registerTask('default', ['jshint']);
+  grunt.registerTask('test', ['simplemocha']);
+    // Default task.
+  grunt.registerTask('default', ['jshint', 'simplemocha']);
 };

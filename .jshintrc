@@ -19,6 +19,13 @@
   "strict": true,
   "trailing": true,
   "smarttabs": true,
-  "globals": {
-  }
+  "globals": { },
+  "predef": [
+    "describe",
+    "it",
+    "before",
+    "beforeEach",
+    "after",
+    "afterEach"
+  ]
 }
