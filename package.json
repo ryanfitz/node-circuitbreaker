@@ -1,0 +1,19 @@
+{
+  "name": "circuitbreaker",
+  "version": "0.0.0",
+  "description": "ERROR: No README.md file found!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "circuit",
+    "breaker"
+  ],
+  "author": "Ryan Fitzgerald <ryan@codebrewstudios.com>",
+  "license": "BSD",
+  "dependencies": {
+    "q": "~0.9.3"
+  }
+}

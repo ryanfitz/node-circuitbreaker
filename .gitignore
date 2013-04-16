@@ -1,0 +1,5 @@
+*.node
+build/
+Debug/
+Release/
+npm-debug.log
