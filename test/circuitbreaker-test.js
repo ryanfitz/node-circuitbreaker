@@ -158,7 +158,6 @@ describe('Circuit Breaker', function(){
       }).fail(function(err) {
         return done(err);
       });
-
     });
 
     it('should enter open state after 3 failures', function(done){
@@ -169,6 +168,20 @@ describe('Circuit Breaker', function(){
       breaker.invoke('fail');
 
       breaker.invoke('fail').then(null, function () {
+
+        breaker.isOpen().should.be.true;
+
+        return done();
+      });
+
+    });
+
+    it('should fail fast when in open state', function(done){
+      var breaker = new CircuitBreaker(callback);
+      callback.yields(null, 'pass');
+      breaker.forceOpen();
+
+      breaker.invoke('pass').then(null, function (err) {
 
         breaker.isOpen().should.be.true;
 
