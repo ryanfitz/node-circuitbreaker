@@ -190,6 +190,26 @@ describe('Circuit Breaker', function(){
       });
 
     });
+
+    it('should invoke function once and then fail fast when in half-open state', function(done){
+      var breaker = new CircuitBreaker(callback);
+      callback.yieldsAsync(null, 'pass');
+      breaker.forceHalfOpen();
+
+      breaker.invoke('pass').then(function (msg) {
+        msg.should.equal('pass');
+        callback.calledOnce.should.be.true;
+      });
+
+      breaker.invoke('short').fail(function (err) {
+        callback.calledOnce.should.be.true;
+
+        'Error: Circuit Breaker open'.should.equal(err.toString() );
+        return done();
+      });
+
+    });
+
   });
 
 });
