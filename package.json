@@ -23,6 +23,7 @@
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.4.3",
     "grunt-regarde": "~0.1.1",
-    "sinon": "~1.6.0"
+    "sinon": "~1.6.0",
+    "grunt-cli": "~0.1.7"
   }
 }
