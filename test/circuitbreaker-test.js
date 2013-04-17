@@ -182,6 +182,7 @@ describe('Circuit Breaker', function(){
       breaker.forceOpen();
 
       breaker.invoke('pass').fail(function (err) {
+        console.log(callback.called);
         'Error: Circuit Breaker open'.should.equal(err.toString() );
 
         return done();
