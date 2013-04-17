@@ -2,7 +2,6 @@
 
 var CircuitBreaker = require('../lib/index'),
     chai           = require('chai'),
-    expect         = chai.expect,
     sinon          = require('sinon');
 
 chai.should();
