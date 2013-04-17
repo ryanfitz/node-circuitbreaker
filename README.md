@@ -3,7 +3,9 @@ node-circuitbreaker
 
 [![Build Status](https://travis-ci.org/Wantworthy/node-circuitbreaker.png?branch=master)](https://travis-ci.org/Wantworthy/node-circuitbreaker)
 
-circuit breaker is used to provide stability and prevent cascading failures in distributed systems
+circuit breaker is a [node.js][2] implementation of the [Circuit Breaker][1] pattern.
+When properly configured it can aid in providing stability and prevent
+cascading failures in distributed systems.
 
 ## Installation
 
@@ -68,4 +70,5 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [0]: https://github.com/Wantworthy/node-circuitbreaker/tree/master/examples
-
+[1]: https://github.com/akka/akka/blob/master/akka-actor/src/main/scala/akka/pattern/CircuitBreaker.scala
+[2]: http://nodejs.org
