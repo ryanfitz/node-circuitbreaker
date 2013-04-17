@@ -205,8 +205,9 @@ describe('Circuit Breaker', function(){
       var breaker = new CircuitBreaker(callback, {maxFailures: 3});
       callback.yields(new Error('fail'));
 
-      breaker.invoke('fail');
-      breaker.invoke('fail');
+      var noop = function (){};
+      breaker.invoke('fail').fail(noop);
+      breaker.invoke('fail').fail(noop);
 
       breaker.invoke('fail').fail(function () {
 
