@@ -55,6 +55,32 @@ describe('Circuit Breaker', function(){
       breaker.isClosed().should.be.false;
     });
 
+    it('should enter half-open state after reset timeout', function (done) {
+      var breaker = new CircuitBreaker(callback, {resetTimeout: 10});
+      breaker.forceOpen();
+
+      breaker.isOpen().should.be.true;
+
+      setTimeout(function () {
+        breaker.isHalfOpen().should.be.true;
+
+        return done();
+      }, 11);
+    });
+
+    it('should remain in open state till reset timeout has been reached', function (done) {
+      var breaker = new CircuitBreaker(callback, {resetTimeout: 20});
+      breaker.forceOpen();
+
+      breaker.isOpen().should.be.true;
+
+      setTimeout(function () {
+        breaker.isOpen().should.be.true;
+
+        return done();
+      }, 19);
+    });
+
   });
 
   describe('#forceClosed', function () {
