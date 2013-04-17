@@ -124,6 +124,15 @@ describe('Circuit Breaker', function(){
       breaker._numFailures.should.equal(0);
     });
 
+    it('should enter closed state when currently in half-open state', function () {
+      var breaker = new CircuitBreaker(callback);
+      breaker.forceHalfOpen();
+
+      breaker.handleSuccess();
+
+      breaker.isClosed().should.be.true;
+    });
+
   });
 
 });
