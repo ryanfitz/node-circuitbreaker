@@ -254,4 +254,25 @@ describe('Circuit Breaker', function(){
 
   });
 
+  describe('timeout', function () {
+
+    it('should enter open state after timing out', function(done) {
+      var timeout = function(callback) {
+        setTimeout(callback, 20);
+      };
+
+      var breaker = new CircuitBreaker(timeout, {timeout: 10, maxFailures: 3});
+      var noop = function () {};
+
+      breaker.invoke().fail(noop);
+      breaker.invoke().fail(noop);
+      breaker.invoke().fail(noop);
+
+      setTimeout(function () {
+        breaker.isOpen().should.be.true;
+        done();
+      }, 15);
+    });
+
+  });
 });

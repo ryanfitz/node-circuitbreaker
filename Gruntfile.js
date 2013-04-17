@@ -17,6 +17,9 @@ module.exports = function(grunt) {
       test: {
         src: ['test/**/*.js']
       },
+      examples: {
+        src: ['examples/**/*.js']
+      }
     },
     regarde: {
       gruntfile: {
