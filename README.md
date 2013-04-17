@@ -12,7 +12,7 @@ circuit breaker is used to provide stability and prevent cascading failures in d
 ## Examples
 
 ``` js
-var circuitBreaker = require('../index');
+var circuitBreaker = require('circuitBreaker');
 
 var loadDataFromRemoteServer = function (id, callback) {
   if (id < 0) {
