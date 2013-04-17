@@ -226,7 +226,7 @@ describe('Circuit Breaker', function(){
 
       breaker.invoke('pass').fail(function (err) {
         callback.called.should.be.false;
-        'Error: Circuit Breaker open'.should.equal(err.toString() );
+        'Error: CircuitBreaker open'.should.equal(err.toString() );
 
         return done();
       });
@@ -246,7 +246,7 @@ describe('Circuit Breaker', function(){
       breaker.invoke('short').fail(function (err) {
         callback.calledOnce.should.be.true;
 
-        'Error: Circuit Breaker open'.should.equal(err.toString() );
+        'Error: CircuitBreaker open'.should.equal(err.toString() );
         return done();
       });
 

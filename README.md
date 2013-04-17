@@ -10,6 +10,7 @@ circuit breaker is used to provide stability and prevent cascading failures in d
     npm install circuitbreaker
 
 ## Examples
+See the [examples][0] for more working sample code.
 
 ``` js
 var circuitBreaker = require('circuitBreaker');
@@ -65,3 +66,6 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+[0]: https://github.com/Wantworthy/node-circuitbreaker/tree/master/examples
+
