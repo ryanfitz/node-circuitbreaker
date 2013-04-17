@@ -169,6 +169,7 @@ describe('Circuit Breaker', function(){
 
       breaker.invoke('fail').fail(function () {
 
+        callback.calledThrice.should.be.true;
         breaker.isOpen().should.be.true;
 
         return done();
@@ -182,7 +183,7 @@ describe('Circuit Breaker', function(){
       breaker.forceOpen();
 
       breaker.invoke('pass').fail(function (err) {
-        console.log(callback.called);
+        callback.called.should.be.false;
         'Error: Circuit Breaker open'.should.equal(err.toString() );
 
         return done();
