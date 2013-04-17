@@ -22,6 +22,7 @@
     "grunt-simple-mocha": "~0.4.0",
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.4.3",
-    "grunt-regarde": "~0.1.1"
+    "grunt-regarde": "~0.1.1",
+    "sinon": "~1.6.0"
   }
 }

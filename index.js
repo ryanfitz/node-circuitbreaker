@@ -11,6 +11,7 @@ module.exports = function(func, options) {
   // public api methods to expose
   var methods = [
     'isOpen',
+    'isClosed'
   ];
 
   methods.forEach(function (method) {
