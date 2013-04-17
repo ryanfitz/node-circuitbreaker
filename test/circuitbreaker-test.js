@@ -106,6 +106,9 @@ describe('Circuit Breaker', function(){
         done();
       });
 
+      // circuit needs to first be forced open to trigger close event
+      breaker.forceOpen();
+
       breaker.forceClosed();
     });
 
