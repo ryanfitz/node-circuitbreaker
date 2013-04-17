@@ -1,12 +1,12 @@
 {
   "name": "circuitbreaker",
   "version": "0.0.0",
-  "description": "ERROR: No README.md file found!",
+  "description": "circuit breaker is used to provide stability and prevent cascading failures in distributed systems",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt test"
   },
-  "repository": "",
+  "repository": "git://github.com/Wantworthy/node-circuitbreaker.git",
   "keywords": [
     "circuit",
     "breaker"
