@@ -12,7 +12,7 @@
     "breaker"
   ],
   "author": "Ryan Fitzgerald <ryan@codebrewstudios.com>",
-  "license": "BSD",
+  "license": "MIT",
   "dependencies": {
     "q": "~0.9.3"
   },
