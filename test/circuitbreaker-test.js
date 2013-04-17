@@ -63,6 +63,17 @@ describe('Circuit Breaker', function(){
       }, 19);
     });
 
+    it('should emit open event', function (done) {
+      var breaker = new CircuitBreaker(callback);
+
+      breaker.on('open', function () {
+        done();
+      });
+
+      breaker.forceOpen();
+    });
+
+
   });
 
   describe('#forceClosed', function () {
@@ -86,6 +97,37 @@ describe('Circuit Breaker', function(){
       breaker.forceClosed();
 
       breaker._numFailures.should.equal(0);
+    });
+
+    it('should emit close event', function (done) {
+      var breaker = new CircuitBreaker(callback);
+
+      breaker.on('close', function () {
+        done();
+      });
+
+      breaker.forceClosed();
+    });
+
+  });
+
+  describe('#forceClosed', function () {
+    it('should enter half-open state', function () {
+      var breaker = new CircuitBreaker(callback);
+
+      breaker.forceHalfOpen();
+
+      breaker.isHalfOpen().should.be.true;
+    });
+
+    it('should emit halfOpen event', function (done) {
+      var breaker = new CircuitBreaker(callback);
+
+      breaker.on('halfOpen', function () {
+        done();
+      });
+
+      breaker.forceHalfOpen();
     });
 
   });
