@@ -83,6 +83,7 @@ describe('Circuit Breaker', function(){
   });
 
   describe('#handleFailure', function () {
+
     it('should increment number of failures', function () {
       var breaker = new CircuitBreaker(callback);
       breaker.handleFailure();
@@ -110,6 +111,19 @@ describe('Circuit Breaker', function(){
       breaker.isOpen().should.be.true;
       breaker.isClosed().should.be.false;
     });
+  });
+
+  describe('#handleSuccess', function () {
+
+    it('should reset number of failures to 0', function () {
+      var breaker = new CircuitBreaker(callback);
+      breaker._numFailures = 10;
+
+      breaker.handleSuccess();
+
+      breaker._numFailures.should.equal(0);
+    });
+
   });
 
 });
