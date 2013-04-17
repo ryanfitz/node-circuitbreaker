@@ -70,5 +70,5 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [0]: https://github.com/Wantworthy/node-circuitbreaker/tree/master/examples
-[1]: https://github.com/akka/akka/blob/master/akka-actor/src/main/scala/akka/pattern/CircuitBreaker.scala
+[1]: http://doc.akka.io/docs/akka/snapshot/common/circuitbreaker.html
 [2]: http://nodejs.org
