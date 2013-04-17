@@ -1,34 +1,17 @@
 'use strict';
 
 var CircuitBreaker = require('../lib/index'),
+    chai           = require('chai'),
+    expect         = chai.expect,
     sinon          = require('sinon');
 
-require('chai').should();
+chai.should();
 
 describe('Circuit Breaker', function(){
-  var breaker,
-      callback;
+  var callback;
 
   beforeEach(function () {
     callback = sinon.stub();
-    var func = function (name, callback) {
-      return callback(new Error('foo'));
-      //return callback(null, 'hello ' + name);
-    };
-
-    breaker = new CircuitBreaker(func, {timeout: 10, resetTimeout: 10, maxFailures: 3});
-  });
-
-  describe('stuff', function() {
-
-    it('should work', function(done){
-      breaker.invoke('bob').then(function (msg) {
-        console.log('message is', msg);
-      }).fail(function(err) {
-        console.log('error is', err);
-      }).done(function() {return done();});
-
-    });
   });
 
   describe('#constructor', function () {
@@ -159,6 +142,40 @@ describe('Circuit Breaker', function(){
       breaker.isClosed().should.be.true;
     });
 
+  });
+
+  describe('invoke', function() {
+
+    it('should remain closed on successful call', function(done){
+      var breaker = new CircuitBreaker(callback);
+      callback.withArgs('pass').yields(null, 'pass');
+
+      breaker.invoke('pass').then(function (msg) {
+        msg.should.equal('pass');
+        breaker.isClosed().should.be.true;
+
+        return done();
+      }).fail(function(err) {
+        return done(err);
+      });
+
+    });
+
+    it('should enter open state after 3 failures', function(done){
+      var breaker = new CircuitBreaker(callback, {maxFailures: 3});
+      callback.yields(new Error('fail'));
+
+      breaker.invoke('fail');
+      breaker.invoke('fail');
+
+      breaker.invoke('fail').then(null, function () {
+
+        breaker.isOpen().should.be.true;
+
+        return done();
+      });
+
+    });
   });
 
 });
