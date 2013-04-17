@@ -15,7 +15,7 @@ cascading failures in distributed systems.
 See the [examples][0] for more working sample code.
 
 ``` js
-var circuitBreaker = require('circuitBreaker');
+var circuitBreaker = require('circuitbreaker');
 
 var loadDataFromRemoteServer = function (id, callback) {
   if (id < 0) {
