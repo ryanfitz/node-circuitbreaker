@@ -67,6 +67,7 @@ describe('Circuit Breaker', function(){
       var breaker = new CircuitBreaker(callback);
 
       breaker.on('open', function () {
+        breaker.isOpen().should.be.true;
         done();
       });
 
@@ -255,6 +256,28 @@ describe('Circuit Breaker', function(){
 
     });
 
+    it('should latency event on successful call', function(done){
+      var clock = sinon.useFakeTimers();
+
+      var timeout = function(callback) {
+        setTimeout(callback, 20);
+      };
+
+      var breaker = new CircuitBreaker(timeout);
+
+      breaker.on('latency', function(latency) {
+        latency.should.equal(20);
+        return done();
+      });
+
+      breaker.invoke();
+
+      clock.tick(25);
+
+      clock.restore();
+    });
+
+
   });
 
   describe('timeout', function () {
@@ -291,6 +314,19 @@ describe('Circuit Breaker', function(){
       }, 20);
     });
 
+    it('should emit timeout event after timing out', function(done) {
+      var timeout = function(callback) {
+        setTimeout(callback, 20);
+      };
+
+      var breaker = new CircuitBreaker(timeout, {timeout: 10});
+
+      breaker.on('timeout', function() {
+        return done();
+      });
+
+      breaker.invoke().fail(function(){});
+    });
 
   });
 });
