@@ -281,8 +281,6 @@ describe('Circuit Breaker', function(){
       var breaker = new CircuitBreaker(callback, {timeout: 10, maxFailures: 3});
       callback.yieldsAsync(null, 'pass');
 
-      var noop = function () {};
-
       breaker.invoke();
       breaker.invoke();
       breaker.invoke();
