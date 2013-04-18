@@ -1,6 +1,6 @@
 {
   "name": "circuitbreaker",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "circuit breaker is used to provide stability and prevent cascading failures in distributed systems",
   "main": "index.js",
   "scripts": {
