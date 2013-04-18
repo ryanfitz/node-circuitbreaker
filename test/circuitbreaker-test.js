@@ -264,7 +264,7 @@ describe('Circuit Breaker', function(){
         setTimeout(callback, 20);
       };
 
-      var breaker = new CircuitBreaker(timeout, {timeout: 10, maxFailures: 3});
+      var breaker = new CircuitBreaker(timeout, {timeout: 10, maxFailures: 3, resetTimeout: 3000});
       var noop = function () {};
 
       breaker.invoke().fail(noop);
@@ -274,8 +274,25 @@ describe('Circuit Breaker', function(){
       setTimeout(function () {
         breaker.isOpen().should.be.true;
         done();
-      }, 15);
+      }, 25);
     });
+
+    it('should clear timeout if returned before timeout period', function(done) {
+      var breaker = new CircuitBreaker(callback, {timeout: 10, maxFailures: 3});
+      callback.yieldsAsync(null, 'pass');
+
+      var noop = function () {};
+
+      breaker.invoke();
+      breaker.invoke();
+      breaker.invoke();
+
+      setTimeout(function () {
+        breaker.isClosed().should.be.true;
+        done();
+      }, 20);
+    });
+
 
   });
 });
