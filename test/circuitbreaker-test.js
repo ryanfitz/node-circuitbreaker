@@ -258,6 +258,18 @@ describe('Circuit Breaker', function(){
 
     });
 
+    it('should emit failure event when fast failing', function(done){
+      var breaker = new CircuitBreaker(callback);
+      callback.yields(null, 'pass');
+      breaker.forceOpen();
+
+      breaker.on('failure', function () {
+        return done();
+      });
+
+      breaker.invoke('pass').fail(function () {});
+    });
+
     it('should invoke function once and then fail fast when in half-open state', function(done){
       var breaker = new CircuitBreaker(callback);
       callback.yieldsAsync(null, 'pass');
