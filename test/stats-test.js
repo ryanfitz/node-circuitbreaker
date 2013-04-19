@@ -84,5 +84,22 @@ describe('Stats', function(){
     mockBreaker.emit('latency', 50);
   });
 
+  it('should calculate concurrent requests', function(done) {
+
+    mockBreaker.emit('request');
+    mockBreaker.emit('success');
+
+    mockBreaker.emit('request');
+    mockBreaker.emit('failure');
+
+    mockBreaker.emit('request');
+
+    mockBreaker.once('request', function () {
+      stats.concurrentRequests().should.equal(2);
+      done();
+    });
+
+    mockBreaker.emit('request');
+  });
 
 });
