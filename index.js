@@ -1,6 +1,7 @@
-var util = require("util"),
-    events = require('events'),
-    CircuitBreaker = require('./lib');
+var util           = require("util"),
+    events         = require('events'),
+    CircuitBreaker = require('./lib/circuit-breaker'),
+    Stats          = require('./lib/stats');
 
 var eventEmitterMethods = Object.keys(events.EventEmitter.prototype);
 
@@ -26,6 +27,8 @@ module.exports = function(func, options) {
       return breaker[method].apply(breaker, arguments);
     };
   });
+
+  result.stats = new Stats(breaker);
 
   return result;
 };

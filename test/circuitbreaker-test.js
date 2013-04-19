@@ -1,6 +1,6 @@
 'use strict';
 
-var CircuitBreaker = require('../lib/index'),
+var CircuitBreaker = require('../lib/circuit-breaker'),
     chai           = require('chai'),
     sinon          = require('sinon');
 
@@ -165,6 +165,17 @@ describe('Circuit Breaker', function(){
       breaker.isOpen().should.be.true;
       breaker.isClosed().should.be.false;
     });
+
+    it('should emit failure event', function (done) {
+      var breaker = new CircuitBreaker(callback);
+
+      breaker.on('failure', function () {
+        return done();
+      });
+
+      breaker.handleFailure();
+    });
+
   });
 
   describe('#handleSuccess', function () {
@@ -185,6 +196,16 @@ describe('Circuit Breaker', function(){
       breaker.handleSuccess();
 
       breaker.isClosed().should.be.true;
+    });
+
+    it('should emit success event', function (done) {
+      var breaker = new CircuitBreaker(callback);
+
+      breaker.on('success', function () {
+        return done();
+      });
+
+      breaker.handleSuccess();
     });
 
   });
@@ -253,7 +274,17 @@ describe('Circuit Breaker', function(){
         'Error: CircuitBreaker open'.should.equal(err.toString() );
         return done();
       });
+    });
 
+    it('should emit request event', function(done){
+      var breaker = new CircuitBreaker(callback);
+      callback.yieldsAsync(null, 'pass');
+
+      breaker.on('request', function () {
+        return done();
+      });
+
+      breaker.invoke('pass');
     });
 
     it('should latency event on successful call', function(done){
@@ -276,7 +307,6 @@ describe('Circuit Breaker', function(){
 
       clock.restore();
     });
-
 
   });
 
