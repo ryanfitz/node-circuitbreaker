@@ -258,12 +258,12 @@ describe('Circuit Breaker', function(){
 
     });
 
-    it('should emit failure event when fast failing', function(done){
+    it('should emit rejected event when fast failing', function(done){
       var breaker = new CircuitBreaker(callback);
       callback.yields(null, 'pass');
       breaker.forceOpen();
 
-      breaker.on('failure', function () {
+      breaker.on('rejected', function () {
         return done();
       });
 
