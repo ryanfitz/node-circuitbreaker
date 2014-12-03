@@ -20,6 +20,11 @@ var circuitBreaker = require('circuitbreaker');
 var loadDataFromRemoteServer = function (id, callback) {
   if (id < 0) {
     return callback(new Error('error loading data ' + id));
+  } if (id === 100) {
+    // simulate slow request
+    return setTimeout(function () {
+      callback(null, 'data for id ' + id);
+    }, 100);
   } else {
     return callback(null, 'data for id ' + id);
   }
@@ -27,19 +32,22 @@ var loadDataFromRemoteServer = function (id, callback) {
 
 var breaker = circuitBreaker(loadDataFromRemoteServer, {timeout: 10, maxFailures: 3, resetTimeout: 30});
 
-breaker(23).then(console.log);
+breaker(1).then(console.log);
 
 breaker(-1).fail(console.log);
-breaker(-1).fail(console.log);
-breaker(-1).fail(console.log);
+breaker(-2).fail(console.log);
+breaker(-3).fail(console.log);
 
-breaker(32).fail(function(err) {
+breaker(2).fail(function(err) {
   console.log('failed because breaker is open', err);
 });
 
 setTimeout(function () {
-  breaker(32).then(function (data) {
-    console.log('loaded data because circuit reset after timeout: ', data);
+  breaker(3).then(function (data) {
+    console.log('loaded data because circuit reset after timeout:', data);
+  });
+  breaker(100).fail(function (err) {
+    console.log('failed because function took to long:', err);
   });
 }, 35);
 ```
