@@ -1,7 +1,7 @@
 node-circuitbreaker
 ======================
 
-[![Build Status](https://travis-ci.org/Wantworthy/node-circuitbreaker.png?branch=master)](https://travis-ci.org/Wantworthy/node-circuitbreaker)
+[![Build Status](https://travis-ci.org/ryanfitz/node-circuitbreaker.png?branch=master)](https://travis-ci.org/ryanfitz/node-circuitbreaker)
 
 circuit breaker is a [node.js][2] implementation of the [Circuit Breaker][1] pattern.
 When properly configured it can aid in providing stability and prevent
