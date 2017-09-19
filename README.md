@@ -1,4 +1,4 @@
-node-circuitbreaker
+[node-circuitbreaker][3]
 ======================
 
 [![Version][npm-image]][npm-url] ![Downloads][downloads-image] [![Build Status][status-image]][status-url] [![Open Issues][issues-image]][issues-url] [![Dependency Status][daviddm-image]][daviddm-url] ![License][license-image]
@@ -84,6 +84,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 [0]: https://github.com/screwdriver-cd/node-circuitbreaker/tree/master/examples
 [1]: http://doc.akka.io/docs/akka/snapshot/common/circuitbreaker.html
 [2]: http://nodejs.org
+[3]: https://github.com/ryanfitz/node-circuitbreaker
 
 [npm-image]: https://img.shields.io/npm/v/screwdriver-node-circuitbreaker.svg
 [npm-url]: https://npmjs.org/package/screwdriver-node-circuitbreaker
