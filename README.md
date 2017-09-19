@@ -3,7 +3,7 @@
 
 [![Version][npm-image]][npm-url] ![Downloads][downloads-image] [![Build Status][status-image]][status-url] [![Open Issues][issues-image]][issues-url] [![Dependency Status][daviddm-image]][daviddm-url] ![License][license-image]
 
-circuit breaker is a [node.js][2] implementation of the [Circuit Breaker][1] pattern.
+Circuit breaker is a [node.js][2] implementation of the [Circuit Breaker][1] pattern.
 When properly configured it can aid in providing stability and prevent
 cascading failures in distributed systems.
 
