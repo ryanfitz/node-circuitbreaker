@@ -4,3 +4,6 @@ Debug/
 Release/
 npm-debug.log
 node_modules
+artifacts/
+.DS_STORE
+.*.swp

@@ -1,17 +1,45 @@
 {
-  "name": "circuitbreaker",
-  "version": "0.2.1",
-  "description": "circuit breaker is used to provide stability and prevent cascading failures in distributed systems",
+  "name": "screwdriver-node-circuitbreaker",
+  "version": "0.0.1",
+  "description": "Circuit breaker that is used to provide stability and prevent cascading failures in distributed systems",
   "main": "index.js",
   "scripts": {
-    "test": "grunt test"
+    "test": "jenkins-mocha --recursive",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
-  "repository": "git://github.com/Wantworthy/node-circuitbreaker.git",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:screwdriver-cd/node-circuitbreaker.git"
+  },
+  "homepage": "https://github.com/screwdriver-cd/node-circuitbreaker",
+  "bugs": "https://github.com/screwdriver-cd/node-circuitbreaker/issues",
   "keywords": [
+    "screwdriver",
+    "yahoo",
     "circuit",
     "breaker"
   ],
   "author": "Ryan Fitzgerald <ryan@codebrewstudios.com>",
+  "contributors": [
+    "Dao Lam <daolam112@gmail.com>",
+    "Darren Matsumoto <aeneascorrupt@gmail.com>",
+    "Ian Fox <ianfox97@gmail.com>",
+    "Jeremiah Wuenschel <jeremiah.wuenschel@gmail.com>",
+    "Jithin Emmanuel <jithin1987@gmail.com>",
+    "Joel Sequeira <joelseq96@gmail.com>",
+    "Min Zhang <minzhangcmu@gmail.com>",
+    "Peter Peterson <jedipetey@gmail.com>",
+    "Pranav Ravichandran <prp.1111@gmail.com>",
+    "Reetika Rastogi <r3rastogi@gmail.com>",
+    "St. John Johnson <st.john.johnson@gmail.com",
+    "Tiffany Kyi <tiffanykyi@gmail.com>"
+  ],
+  "release": {
+    "debug": false,
+    "verifyConditions": {
+      "path": "./node_modules/semantic-release/src/lib/plugin-noop.js"
+    }
+  },
   "license": "MIT",
   "dependencies": {
     "q": "~0.9.3"
@@ -19,11 +47,8 @@
   "devDependencies": {
     "mocha": "~1.9.0",
     "chai": "~1.5.0",
-    "grunt-simple-mocha": "~0.4.0",
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.4.3",
-    "grunt-regarde": "~0.1.1",
     "sinon": "~1.6.0",
-    "grunt-cli": "~0.1.7"
+    "jenkins-mocha": "^3.0.4",
+    "mockery": "^2.0.0"
   }
 }

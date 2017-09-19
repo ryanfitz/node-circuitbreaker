@@ -371,4 +371,53 @@ describe('Circuit Breaker', function(){
     });
 
   });
+
+  describe('errorFn', function () {
+    it('should break based on error function parameter', function (done) {
+      var breakerFn = function(id, callback) {
+        if (id < 0) {
+          return callback(id);
+        } else {
+          return callback(null, 'data for id ' + id);
+        }
+      };
+
+      var breaker = new CircuitBreaker(breakerFn, {timeout: 10, maxFailures: 3, resetTimeout: 30, errorFn: function (error) { if (error === -2) { return false; } return true }});
+      var noop = function () {};
+
+      breaker.invoke(-1).fail(noop);
+      breaker.invoke(-2).fail(noop);
+      breaker.invoke(-1).fail(noop);
+      breaker.isClosed().should.be.true;
+
+      breaker.invoke(-1).fail(noop);
+      breaker.isOpen().should.be.true;
+
+      done();
+    });
+
+    it('should break the circuit normally without an error function', function (done) {
+      var breakerFn = function(id, callback) {
+        if (id < 0) {
+          return callback(id);
+        } else {
+          return callback(null, 'data for id ' + id);
+        }
+      };
+
+      var breaker = new CircuitBreaker(breakerFn, {timeout: 10, maxFailures: 3, resetTimeout: 30});
+      var noop = function () {};
+
+      breaker.invoke(-1).fail(noop);
+      breaker.invoke(-2).fail(noop);
+      breaker.invoke(-1).fail(noop);
+      breaker.isClosed().should.be.false;
+
+      breaker.invoke(-1).fail(noop);
+      breaker.isOpen().should.be.true;
+
+      done();
+    });
+
+  });
 });
