@@ -46,8 +46,8 @@
     "q": "^1.5.0"
   },
   "devDependencies": {
-    "eslint": "^3.2.2",
-    "eslint-config-screwdriver": "^2.0.0",
+    "eslint": "^4.7.1",
+    "eslint-config-screwdriver": "^3.0.0",
     "chai": "^3.5.0",
     "sinon": "^2.0.0",
     "jenkins-mocha": "^3.0.4",

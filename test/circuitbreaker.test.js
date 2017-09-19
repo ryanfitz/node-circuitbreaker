@@ -1,423 +1,432 @@
 'use strict';
 
-var CircuitBreaker = require('../lib/circuit-breaker'),
-    chai           = require('chai'),
-    sinon          = require('sinon');
+const CircuitBreaker = require('../lib/circuit-breaker');
+const assert = require('chai').assert;
+const sinon = require('sinon');
 
-chai.should();
+// chai.should();
 
-describe('Circuit Breaker', function(){
-  var callback;
+describe('Circuit Breaker', () => {
+    let callback;
 
-  beforeEach(function () {
-    callback = sinon.stub();
-  });
-
-  describe('#constructor', function () {
-    it('should be in closed state', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker.isClosed().should.be.true;
+    beforeEach(() => {
+        callback = sinon.stub();
     });
 
-    it('should zero out current number of failures', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker._numFailures.should.equal(0);
-    });
-  });
+    describe('#constructor', () => {
+        it('should be in closed state', () => {
+            const breaker = new CircuitBreaker(callback);
 
-  describe('#forceOpen', function () {
+            assert.isTrue(breaker.isClosed());
+        });
 
-    it('should enter open state', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker.isClosed().should.be.true;
+        it('should zero out current number of failures', () => {
+            const breaker = new CircuitBreaker(callback);
 
-      breaker.forceOpen();
-
-      breaker.isOpen().should.be.true;
-      breaker.isClosed().should.be.false;
+            assert.equal(breaker.numFailures, 0);
+        });
     });
 
-    it('should enter half-open state after reset timeout', function (done) {
-      var breaker = new CircuitBreaker(callback, {resetTimeout: 10});
-      breaker.forceOpen();
+    describe('#forceOpen', () => {
+        it('should enter open state', () => {
+            const breaker = new CircuitBreaker(callback);
 
-      breaker.isOpen().should.be.true;
+            assert.isTrue(breaker.isClosed());
 
-      setTimeout(function () {
-        breaker.isHalfOpen().should.be.true;
+            breaker.forceOpen();
 
-        return done();
-      }, 11);
+            assert.isTrue(breaker.isOpen());
+            assert.isFalse(breaker.isClosed());
+        });
+
+        it('should enter half-open state after reset timeout', (done) => {
+            const breaker = new CircuitBreaker(callback, { resetTimeout: 10 });
+
+            breaker.forceOpen();
+
+            assert.isTrue(breaker.isOpen());
+
+            setTimeout(() => {
+                assert.isTrue(breaker.isHalfOpen());
+
+                return done();
+            }, 11);
+        });
+
+        it('should remain in open state till reset timeout has been reached', (done) => {
+            const breaker = new CircuitBreaker(callback, { resetTimeout: 20 });
+
+            breaker.forceOpen();
+
+            assert.isTrue(breaker.isOpen());
+
+            setTimeout(() => {
+                assert.isTrue(breaker.isOpen());
+
+                return done();
+            }, 19);
+        });
+
+        it('should emit open event', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.on('open', () => {
+                assert.isTrue(breaker.isOpen());
+                done();
+            });
+
+            breaker.forceOpen();
+        });
     });
 
-    it('should remain in open state till reset timeout has been reached', function (done) {
-      var breaker = new CircuitBreaker(callback, {resetTimeout: 20});
-      breaker.forceOpen();
+    describe('#forceClosed', () => {
+        it('should enter closed state', () => {
+            const breaker = new CircuitBreaker(callback);
 
-      breaker.isOpen().should.be.true;
+            breaker.forceOpen();
+            assert.isTrue(breaker.isOpen());
 
-      setTimeout(function () {
-        breaker.isOpen().should.be.true;
+            breaker.forceClosed();
 
-        return done();
-      }, 19);
+            assert.isTrue(breaker.isClosed());
+            assert.isFalse(breaker.isOpen());
+        });
+
+        it('should reset number of failrues to 0', () => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.numFailures = 10;
+
+            breaker.forceClosed();
+
+            breaker.numFailures.should.equal(0);
+        });
+
+        it('should emit close event', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.on('close', () => {
+                done();
+            });
+
+            // circuit needs to first be forced open to trigger close event
+            breaker.forceOpen();
+
+            breaker.forceClosed();
+        });
     });
 
-    it('should emit open event', function (done) {
-      var breaker = new CircuitBreaker(callback);
+    describe('#forceClosed', () => {
+        it('should enter half-open state', () => {
+            const breaker = new CircuitBreaker(callback);
 
-      breaker.on('open', function () {
-        breaker.isOpen().should.be.true;
-        done();
-      });
+            breaker.forceHalfOpen();
 
-      breaker.forceOpen();
+            assert.isTrue(breaker.isHalfOpen());
+        });
+
+        it('should emit halfOpen event', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.on('halfOpen', () => {
+                done();
+            });
+
+            breaker.forceHalfOpen();
+        });
     });
 
+    describe('#handleFailure', () => {
+        it('should increment number of failures', () => {
+            const breaker = new CircuitBreaker(callback);
 
-  });
+            breaker.handleFailure();
 
-  describe('#forceClosed', function () {
+            breaker.numFailures.should.equal(1);
+        });
 
-    it('should enter closed state', function () {
-      var breaker = new CircuitBreaker(callback);
+        it('should open circuit after max failures is reached', () => {
+            const breaker = new CircuitBreaker(callback, { maxFailures: 3 });
 
-      breaker.forceOpen();
-      breaker.isOpen().should.be.true;
+            breaker.handleFailure();
+            breaker.handleFailure();
+            breaker.handleFailure();
 
-      breaker.forceClosed();
+            assert.isFalse(breaker.isClosed());
+            assert.isTrue(breaker.isOpen());
+        });
 
-      breaker.isClosed().should.be.true;
-      breaker.isOpen().should.be.false;
+        it('should open circuit when in half-open state', () => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.forceHalfOpen();
+
+            breaker.handleFailure();
+
+            assert.isTrue(breaker.isOpen());
+            assert.isFalse(breaker.isClosed());
+        });
+
+        it('should emit failure event', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.on('failure', () => done());
+
+            breaker.handleFailure();
+        });
     });
 
-    it('should reset number of failrues to 0', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker._numFailures = 10;
+    describe('#handleSuccess', () => {
+        it('should reset number of failures to 0', () => {
+            const breaker = new CircuitBreaker(callback);
 
-      breaker.forceClosed();
+            breaker.numFailures = 10;
 
-      breaker._numFailures.should.equal(0);
+            breaker.handleSuccess();
+
+            breaker.numFailures.should.equal(0);
+        });
+
+        it('should enter closed state when currently in half-open state', () => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.forceHalfOpen();
+
+            breaker.handleSuccess();
+
+            assert.isTrue(breaker.isClosed());
+        });
+
+        it('should emit success event', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            breaker.on('success', () => done());
+
+            breaker.handleSuccess();
+        });
     });
 
-    it('should emit close event', function (done) {
-      var breaker = new CircuitBreaker(callback);
+    describe('invoke', () => {
+        it('should remain closed on successful call', (done) => {
+            const breaker = new CircuitBreaker(callback);
 
-      breaker.on('close', function () {
-        done();
-      });
+            callback.withArgs('pass').yields(null, 'pass');
 
-      // circuit needs to first be forced open to trigger close event
-      breaker.forceOpen();
+            breaker.invoke('pass').then((msg) => {
+                msg.should.equal('pass');
+                assert.isTrue(breaker.isClosed());
 
-      breaker.forceClosed();
+                return done();
+            }).fail(err => done(err));
+        });
+
+        it('should enter open state after 3 failures', (done) => {
+            const breaker = new CircuitBreaker(callback, { maxFailures: 3 });
+
+            callback.yields(new Error('fail'));
+
+            const noop = function () {};
+
+            breaker.invoke('fail').fail(noop);
+            breaker.invoke('fail').fail(noop);
+
+            breaker.invoke('fail').fail(() => {
+                assert.isTrue(callback.calledThrice);
+                assert.isTrue(breaker.isOpen());
+
+                return done();
+            });
+        });
+
+        it('should fail fast when in open state', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            callback.yields(null, 'pass');
+            breaker.forceOpen();
+
+            breaker.invoke('pass').fail((err) => {
+                assert.isFalse(callback.called);
+                'Error: CircuitBreaker open'.should.equal(err.toString());
+
+                return done();
+            });
+        });
+
+        it('should emit rejected event when fast failing', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            callback.yields(null, 'pass');
+            breaker.forceOpen();
+
+            breaker.on('rejected', () => done());
+
+            breaker.invoke('pass').fail(() => {});
+        });
+
+        it('should invoke function once and then fail fast when in half-open state', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            callback.yieldsAsync(null, 'pass');
+            breaker.forceHalfOpen();
+
+            breaker.invoke('pass').then((msg) => {
+                msg.should.equal('pass');
+                assert.isTrue(callback.calledOnce);
+            });
+
+            breaker.invoke('short').fail((err) => {
+                assert.isTrue(callback.calledOnce);
+
+                'Error: CircuitBreaker open'.should.equal(err.toString());
+
+                return done();
+            });
+        });
+
+        it('should emit request event', (done) => {
+            const breaker = new CircuitBreaker(callback);
+
+            callback.yieldsAsync(null, 'pass');
+
+            breaker.on('request', () => done());
+
+            breaker.invoke('pass');
+        });
+
+        it('should latency event on successful call', (done) => {
+            const clock = sinon.useFakeTimers();
+
+            const timeout = function (cb) {
+                setTimeout(cb, 20);
+            };
+
+            const breaker = new CircuitBreaker(timeout);
+
+            breaker.on('latency', (latency) => {
+                latency.should.equal(20);
+
+                return done();
+            });
+
+            breaker.invoke();
+
+            clock.tick(25);
+
+            clock.restore();
+        });
     });
 
-  });
+    describe('timeout', () => {
+        it('should enter open state after timing out', (done) => {
+            const timeout = function (cb) {
+                setTimeout(cb, 20);
+            };
 
-  describe('#forceClosed', function () {
-    it('should enter half-open state', function () {
-      var breaker = new CircuitBreaker(callback);
+            const breaker = new CircuitBreaker(timeout, {
+                timeout: 10,
+                maxFailures: 3,
+                resetTimeout: 3000
+            });
+            const noop = function () {};
 
-      breaker.forceHalfOpen();
+            breaker.invoke().fail(noop);
+            breaker.invoke().fail(noop);
+            breaker.invoke().fail(noop);
 
-      breaker.isHalfOpen().should.be.true;
+            setTimeout(() => {
+                assert.isTrue(breaker.isOpen());
+                done();
+            }, 25);
+        });
+
+        it('should clear timeout if returned before timeout period', (done) => {
+            const breaker = new CircuitBreaker(callback, { timeout: 10, maxFailures: 3 });
+
+            callback.yieldsAsync(null, 'pass');
+
+            breaker.invoke();
+            breaker.invoke();
+            breaker.invoke();
+
+            setTimeout(() => {
+                assert.isTrue(breaker.isClosed());
+                done();
+            }, 20);
+        });
+
+        it('should emit timeout event after timing out', (done) => {
+            const timeout = function (cb) {
+                setTimeout(cb, 20);
+            };
+
+            const breaker = new CircuitBreaker(timeout, { timeout: 10 });
+
+            breaker.on('timeout', () => done());
+
+            breaker.invoke().fail(() => {});
+        });
     });
 
-    it('should emit halfOpen event', function (done) {
-      var breaker = new CircuitBreaker(callback);
+    describe('errorFn', () => {
+        it('should break based on error function parameter', (done) => {
+            const breakerFn = function (id, cb) {
+                if (id < 0) {
+                    return cb(id);
+                }
 
-      breaker.on('halfOpen', function () {
-        done();
-      });
+                return cb(null, `data for id ${id}`);
+            };
 
-      breaker.forceHalfOpen();
+            const breaker = new CircuitBreaker(breakerFn, {
+                timeout: 10,
+                maxFailures: 3,
+                resetTimeout: 30,
+                errorFn(error) {
+                    if (error === -2) {
+                        return false;
+                    }
+
+                    return true;
+                }
+            });
+            const noop = function () {};
+
+            breaker.invoke(-1).fail(noop);
+            breaker.invoke(-2).fail(noop);
+            breaker.invoke(-1).fail(noop);
+            assert.isTrue(breaker.isClosed());
+
+            breaker.invoke(-1).fail(noop);
+            assert.isTrue(breaker.isOpen());
+
+            done();
+        });
+
+        it('should break the circuit normally without an error function', (done) => {
+            const breakerFn = function (id, cb) {
+                if (id < 0) {
+                    return cb(id);
+                }
+
+                return cb(null, `data for id ${id}`);
+            };
+
+            const breaker = new CircuitBreaker(breakerFn, {
+                timeout: 10,
+                maxFailures: 3,
+                resetTimeout: 30
+            });
+            const noop = function () {};
+
+            breaker.invoke(-1).fail(noop);
+            breaker.invoke(-2).fail(noop);
+            breaker.invoke(-1).fail(noop);
+            assert.isFalse(breaker.isClosed());
+
+            breaker.invoke(-1).fail(noop);
+            assert.isTrue(breaker.isOpen());
+
+            done();
+        });
     });
-
-  });
-
-  describe('#handleFailure', function () {
-
-    it('should increment number of failures', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker.handleFailure();
-
-      breaker._numFailures.should.equal(1);
-    });
-
-    it('should open circuit after max failures is reached', function () {
-      var breaker = new CircuitBreaker(callback, {maxFailures: 3});
-
-      breaker.handleFailure();
-      breaker.handleFailure();
-      breaker.handleFailure();
-
-      breaker.isClosed().should.be.false;
-      breaker.isOpen().should.be.true;
-    });
-
-    it('should open circuit when in half-open state', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker.forceHalfOpen();
-
-      breaker.handleFailure();
-
-      breaker.isOpen().should.be.true;
-      breaker.isClosed().should.be.false;
-    });
-
-    it('should emit failure event', function (done) {
-      var breaker = new CircuitBreaker(callback);
-
-      breaker.on('failure', function () {
-        return done();
-      });
-
-      breaker.handleFailure();
-    });
-
-  });
-
-  describe('#handleSuccess', function () {
-
-    it('should reset number of failures to 0', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker._numFailures = 10;
-
-      breaker.handleSuccess();
-
-      breaker._numFailures.should.equal(0);
-    });
-
-    it('should enter closed state when currently in half-open state', function () {
-      var breaker = new CircuitBreaker(callback);
-      breaker.forceHalfOpen();
-
-      breaker.handleSuccess();
-
-      breaker.isClosed().should.be.true;
-    });
-
-    it('should emit success event', function (done) {
-      var breaker = new CircuitBreaker(callback);
-
-      breaker.on('success', function () {
-        return done();
-      });
-
-      breaker.handleSuccess();
-    });
-
-  });
-
-  describe('invoke', function() {
-
-    it('should remain closed on successful call', function(done){
-      var breaker = new CircuitBreaker(callback);
-      callback.withArgs('pass').yields(null, 'pass');
-
-      breaker.invoke('pass').then(function (msg) {
-        msg.should.equal('pass');
-        breaker.isClosed().should.be.true;
-
-        return done();
-      }).fail(function(err) {
-        return done(err);
-      });
-    });
-
-    it('should enter open state after 3 failures', function(done){
-      var breaker = new CircuitBreaker(callback, {maxFailures: 3});
-      callback.yields(new Error('fail'));
-
-      var noop = function (){};
-      breaker.invoke('fail').fail(noop);
-      breaker.invoke('fail').fail(noop);
-
-      breaker.invoke('fail').fail(function () {
-
-        callback.calledThrice.should.be.true;
-        breaker.isOpen().should.be.true;
-
-        return done();
-      });
-
-    });
-
-    it('should fail fast when in open state', function(done){
-      var breaker = new CircuitBreaker(callback);
-      callback.yields(null, 'pass');
-      breaker.forceOpen();
-
-      breaker.invoke('pass').fail(function (err) {
-        callback.called.should.be.false;
-        'Error: CircuitBreaker open'.should.equal(err.toString() );
-
-        return done();
-      });
-
-    });
-
-    it('should emit rejected event when fast failing', function(done){
-      var breaker = new CircuitBreaker(callback);
-      callback.yields(null, 'pass');
-      breaker.forceOpen();
-
-      breaker.on('rejected', function () {
-        return done();
-      });
-
-      breaker.invoke('pass').fail(function () {});
-    });
-
-    it('should invoke function once and then fail fast when in half-open state', function(done){
-      var breaker = new CircuitBreaker(callback);
-      callback.yieldsAsync(null, 'pass');
-      breaker.forceHalfOpen();
-
-      breaker.invoke('pass').then(function (msg) {
-        msg.should.equal('pass');
-        callback.calledOnce.should.be.true;
-      });
-
-      breaker.invoke('short').fail(function (err) {
-        callback.calledOnce.should.be.true;
-
-        'Error: CircuitBreaker open'.should.equal(err.toString() );
-        return done();
-      });
-    });
-
-    it('should emit request event', function(done){
-      var breaker = new CircuitBreaker(callback);
-      callback.yieldsAsync(null, 'pass');
-
-      breaker.on('request', function () {
-        return done();
-      });
-
-      breaker.invoke('pass');
-    });
-
-    it('should latency event on successful call', function(done){
-      var clock = sinon.useFakeTimers();
-
-      var timeout = function(callback) {
-        setTimeout(callback, 20);
-      };
-
-      var breaker = new CircuitBreaker(timeout);
-
-      breaker.on('latency', function(latency) {
-        latency.should.equal(20);
-        return done();
-      });
-
-      breaker.invoke();
-
-      clock.tick(25);
-
-      clock.restore();
-    });
-
-  });
-
-  describe('timeout', function () {
-
-    it('should enter open state after timing out', function(done) {
-      var timeout = function(callback) {
-        setTimeout(callback, 20);
-      };
-
-      var breaker = new CircuitBreaker(timeout, {timeout: 10, maxFailures: 3, resetTimeout: 3000});
-      var noop = function () {};
-
-      breaker.invoke().fail(noop);
-      breaker.invoke().fail(noop);
-      breaker.invoke().fail(noop);
-
-      setTimeout(function () {
-        breaker.isOpen().should.be.true;
-        done();
-      }, 25);
-    });
-
-    it('should clear timeout if returned before timeout period', function(done) {
-      var breaker = new CircuitBreaker(callback, {timeout: 10, maxFailures: 3});
-      callback.yieldsAsync(null, 'pass');
-
-      breaker.invoke();
-      breaker.invoke();
-      breaker.invoke();
-
-      setTimeout(function () {
-        breaker.isClosed().should.be.true;
-        done();
-      }, 20);
-    });
-
-    it('should emit timeout event after timing out', function(done) {
-      var timeout = function(callback) {
-        setTimeout(callback, 20);
-      };
-
-      var breaker = new CircuitBreaker(timeout, {timeout: 10});
-
-      breaker.on('timeout', function() {
-        return done();
-      });
-
-      breaker.invoke().fail(function(){});
-    });
-
-  });
-
-  describe('errorFn', function () {
-    it('should break based on error function parameter', function (done) {
-      var breakerFn = function(id, callback) {
-        if (id < 0) {
-          return callback(id);
-        } else {
-          return callback(null, 'data for id ' + id);
-        }
-      };
-
-      var breaker = new CircuitBreaker(breakerFn, {timeout: 10, maxFailures: 3, resetTimeout: 30, errorFn: function (error) { if (error === -2) { return false; } return true }});
-      var noop = function () {};
-
-      breaker.invoke(-1).fail(noop);
-      breaker.invoke(-2).fail(noop);
-      breaker.invoke(-1).fail(noop);
-      breaker.isClosed().should.be.true;
-
-      breaker.invoke(-1).fail(noop);
-      breaker.isOpen().should.be.true;
-
-      done();
-    });
-
-    it('should break the circuit normally without an error function', function (done) {
-      var breakerFn = function(id, callback) {
-        if (id < 0) {
-          return callback(id);
-        } else {
-          return callback(null, 'data for id ' + id);
-        }
-      };
-
-      var breaker = new CircuitBreaker(breakerFn, {timeout: 10, maxFailures: 3, resetTimeout: 30});
-      var noop = function () {};
-
-      breaker.invoke(-1).fail(noop);
-      breaker.invoke(-2).fail(noop);
-      breaker.invoke(-1).fail(noop);
-      breaker.isClosed().should.be.false;
-
-      breaker.invoke(-1).fail(noop);
-      breaker.isOpen().should.be.true;
-
-      done();
-    });
-
-  });
 });

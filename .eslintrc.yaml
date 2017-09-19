@@ -1,0 +1,4 @@
+extends: screwdriver
+rules:
+    func-names: "off"
+    no-console: "off"
