@@ -2,7 +2,7 @@ workflow:
     - publish
 
 shared:
-    image: node:8
+    image: node:6
 
 jobs:
     main:
@@ -12,7 +12,7 @@ jobs:
 
     publish:
         steps:
-            - install: npm install semantic-release
+            - install: npm install --no-save semantic-release@^7
             - publish: npm run semantic-release
         secrets:
             # Publishing to NPM
