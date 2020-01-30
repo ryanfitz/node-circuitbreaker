@@ -225,7 +225,7 @@ describe('Circuit Breaker', () => {
 
             callback.yields(new Error('fail'));
 
-            const noop = function () {};
+            const noop = function () { };
 
             breaker.invoke('fail').fail(noop);
             breaker.invoke('fail').fail(noop);
@@ -260,7 +260,7 @@ describe('Circuit Breaker', () => {
 
             breaker.on('rejected', () => done());
 
-            breaker.invoke('pass').fail(() => {});
+            breaker.invoke('pass').fail(() => { });
         });
 
         it('should invoke function once and then fail fast when in half-open state', (done) => {
@@ -327,7 +327,7 @@ describe('Circuit Breaker', () => {
                 maxFailures: 3,
                 resetTimeout: 3000
             });
-            const noop = function () {};
+            const noop = function () { };
 
             breaker.invoke().fail(noop);
             breaker.invoke().fail(noop);
@@ -363,7 +363,22 @@ describe('Circuit Breaker', () => {
 
             breaker.on('timeout', () => done());
 
-            breaker.invoke().fail(() => {});
+            breaker.invoke().fail(() => { });
+        });
+
+        it('should take timeout value from env variable', (done) => {
+            const timeout = function (cb) {
+                setTimeout(cb, 20);
+            };
+
+            process.env.BREAKER_TIMEOUT = 10;
+            process.env.BREAKER_RESET_TIMEOUT = 6000;
+            process.env.BREAKER_MAX_FAILURES = 5;
+            const breaker = new CircuitBreaker(timeout, {});
+
+            breaker.on('timeout', () => done());
+
+            breaker.invoke().fail(() => { });
         });
     });
 
@@ -389,7 +404,7 @@ describe('Circuit Breaker', () => {
                     return true;
                 }
             });
-            const noop = function () {};
+            const noop = function () { };
 
             breaker.invoke(-1).fail(noop);
             breaker.invoke(-2).fail(noop);
@@ -416,7 +431,7 @@ describe('Circuit Breaker', () => {
                 maxFailures: 3,
                 resetTimeout: 30
             });
-            const noop = function () {};
+            const noop = function () { };
 
             breaker.invoke(-1).fail(noop);
             breaker.invoke(-2).fail(noop);
